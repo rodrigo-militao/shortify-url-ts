@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { ValidateResult } from "../../../types";
+import { ValidateResult } from "../../types";
 
 enum ExpiresAt {
   One = 1,
@@ -8,8 +8,7 @@ enum ExpiresAt {
 }
 
 export const ShortifySchema = z.object({
-  url: z.string().min(1),
-  isTemporary: z.boolean(),
+  longUrl: z.string().min(1),
   expiresAt: z.nativeEnum(ExpiresAt)
 })
 

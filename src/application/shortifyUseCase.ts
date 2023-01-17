@@ -1,32 +1,41 @@
-import {ShortifyRequest, Result} from "../types";
+import { Url } from "../domain/url.entity";
+import { ShortifyRequest, validate } from "../domain/validations/shortifyValidaton";
+import { getByLongUrl } from "../infra/repository/urlRepository";
+import { Result } from "../types";
 
-export default (input:ShortifyRequest): Result => {
-  if (!validate(input)){
-    console.log("A validação falhou!")
+const DEFAULT_URL = process.env.MYURL || "http://localhost:3000/";
+
+export default async (input: ShortifyRequest): Promise<Result> => {
+  const validationResult = validate(input)
+  
+  if (!validationResult.success) {
     return {
       isFailure: true,
-      message: "Validação falhou, verifique os dados e tente novamente."
+      error: validationResult.error
     }
   }
+
+  const getByLongUrlResult = await getByLongUrl(input.longUrl);
+  if (getByLongUrlResult)
+    return retorno(getByLongUrlResult, input);
+
+  //if not, generate a new domain
   
   return {
     isSuccess: true,
     value: {
       ...input,
-      shortifiedUrl: "https://mock.com/abcde123"
+      shortifiedUrl: "abcde123"
     }
   }
 }
 
-const validate = (input:ShortifyRequest) => {
-  try {
-    if (input.url == undefined || input.url.trim().length === 0) return false;
-    if (input.isTemporary == undefined || typeof input.isTemporary !== "boolean" ) return false;
-
-    return true;
-  } catch (error) {
-    console.error(error)
-    return false;
+const retorno = (url: Url, input: ShortifyRequest) => {
+  return {
+    isSuccess: true,
+    value: {
+      ...input,
+      shortifiedUrl: url.shortUrl
+    }
   }
-  
 }
