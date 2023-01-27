@@ -2,40 +2,20 @@ import { Url } from "../domain/url.entity";
 import { ShortifyRequest, validate } from "../domain/validations/shortifyValidaton";
 import { getByLongUrl } from "../infra/repository/urlRepository";
 import { Result } from "../types";
+import newDomainUseCase from "./newDomainUseCase";
 
-const DEFAULT_URL = process.env.MYURL || "http://localhost:3000/";
-
-export default async (input: ShortifyRequest): Promise<Result> => {
+export default async (input: ShortifyRequest): Promise<Result<Url>> => {
   const validationResult = validate(input)
-  
-  if (!validationResult.success) {
-    return {
-      isFailure: true,
-      error: validationResult.error
-    }
-  }
+  if (!validationResult.success)
+    return { success: false, error: validationResult.error }
 
   const getByLongUrlResult = await getByLongUrl(input.longUrl);
-  if (getByLongUrlResult)
-    return retorno(getByLongUrlResult, input);
+  if (getByLongUrlResult.success)
+    return { success: true, data: getByLongUrlResult.data }
 
-  //if not, generate a new domain
-  
-  return {
-    isSuccess: true,
-    value: {
-      ...input,
-      shortifiedUrl: "abcde123"
-    }
-  }
-}
+  const newDomainResult = await newDomainUseCase(input.longUrl);
+  if (newDomainResult.success)
+    return {success: true, data: newDomainResult.data}
 
-const retorno = (url: Url, input: ShortifyRequest) => {
-  return {
-    isSuccess: true,
-    value: {
-      ...input,
-      shortifiedUrl: url.shortUrl
-    }
-  }
+  return { success: false, error: newDomainResult.error }
 }

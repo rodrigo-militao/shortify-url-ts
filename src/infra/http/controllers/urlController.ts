@@ -9,9 +9,9 @@ router.post('/shorten', async (req, res) => {
 
     const result = await ShortifyUseCase(body);
   
-    const resultCode = result.isSuccess ? 200 : 400;
+    const resultCode = result.success ? 200 : 400;
   
-    return res.status(resultCode).send(result.isSuccess ? result.value : result.error);
+    return res.status(resultCode).send({data: result.success ? result.data : result.error});
   } catch {
     return res.status(500).send({"error": "Unexpected error"});
   }

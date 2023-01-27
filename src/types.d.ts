@@ -1,12 +1,11 @@
-import { ZodError } from "zod";
-
-export interface Result {
-  isSuccess?: boolean;
-  isFailure?: boolean;
-  value?: unknown;
-  error?: unknown;
+interface ResultFail {
+  success: false;
+  error: unknown;
 }
 
-export type ValidateResult<T> = 
-{ success: true; data: T; } | { success: false; error: ZodError; }
+interface ResultSuccess<T>{
+  success: true;
+  data: T;
+}
 
+export type Result<T> = ResultSuccess<T> | ResultFail;
