@@ -6,7 +6,7 @@ app.use(express.json());
 const port = process.env.PORT || 3000;
 
 
-app.use("/api", urlController)
+app.use("/api/v1", urlController)
 
 app.listen(port, () => {
   console.log(`Server rodando na porta ${port}`);

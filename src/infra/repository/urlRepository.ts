@@ -5,7 +5,7 @@ import db from './db';
 export const getByLongUrl = async (longUrl: string): Promise<Result<Url>> => {
   const resultQuery = await db.select({
     table: "url",
-    where: '`longUrl` = ?',
+    where: '`longUrl` = ? and `expiresAt` > CURDATE()',
     params: [longUrl],
     limit: 1
   }) as Url | false;
